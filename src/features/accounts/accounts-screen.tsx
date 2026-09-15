@@ -10,6 +10,7 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
+  Trash2,
   WalletCards
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -240,18 +241,58 @@ function AccountsListTab() {
   const [institution, setInstitution] = useState("Banco manual");
   const [balance, setBalance] = useState("0");
 
+  const [search, setSearch] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<AccountStatus | "all">("all");
+  const [balanceFilter, setBalanceFilter] = useState<
+    "all" | "positive" | "zero" | "negative"
+  >("all");
+
+  const filteredRows = useMemo(() => {
+    const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
+
+    return rows.filter((account) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        account.bank.toLocaleLowerCase("pt-BR").includes(normalizedSearch) ||
+        account.type.toLocaleLowerCase("pt-BR").includes(normalizedSearch) ||
+        account.institutionCode.includes(normalizedSearch);
+
+      const matchesStatus =
+        statusFilter === "all" || account.status === statusFilter;
+
+      const matchesBalance =
+        balanceFilter === "all" ||
+        (balanceFilter === "positive" && account.balanceCents > 0) ||
+        (balanceFilter === "zero" && account.balanceCents === 0) ||
+        (balanceFilter === "negative" && account.balanceCents < 0);
+
+      return matchesSearch && matchesStatus && matchesBalance;
+    });
+  }, [rows, search, statusFilter, balanceFilter]);
+
+  const hasActiveFilters =
+    search.trim() !== "" ||
+    statusFilter !== "all" ||
+    balanceFilter !== "all";
+
   function addAccount() {
-    const balanceCents = Math.max(0, Math.round(Number(balance.replace(",", ".")) * 100) || 0);
+    const balanceCents =
+      Math.round(Number(balance.replace(",", ".")) * 100) || 0;
+
     if (!name.trim()) return;
+
+    const id = `local-${crypto.randomUUID()}`;
+
     setRows((current) => [
       {
-        id: `local-${current.length + 1}`,
-        bank: name,
-        type: institution,
+        id,
+        bank: name.trim(),
+        type: institution.trim() || "Banco manual",
         balanceCents,
         color: "#0f6b57",
         updatedAt: baseDate,
-        accountId: `local-${current.length + 1}`,
+        accountId: id,
         status: "active",
         openingBalanceCents: balanceCents,
         monthlyIncomeCents: 0,
@@ -262,9 +303,33 @@ function AccountsListTab() {
       },
       ...current
     ]);
+
     setName("");
     setInstitution("Banco manual");
     setBalance("0");
+  }
+
+  function deleteAccount(accountId: string) {
+    const account = rows.find((item) => item.id === accountId);
+
+    if (!account) return;
+
+    const confirmed = window.confirm(
+      `Deseja realmente apagar a conta "${account.bank}"?\n\n` +
+        "Esta ação afeta apenas o mock atual."
+    );
+
+    if (!confirmed) return;
+
+    setRows((current) =>
+      current.filter((item) => item.id !== accountId)
+    );
+  }
+
+  function clearFilters() {
+    setSearch("");
+    setStatusFilter("all");
+    setBalanceFilter("all");
   }
 
   return (
@@ -272,90 +337,318 @@ function AccountsListTab() {
       <div className="flex flex-col gap-4 border-b border-[#dde4df] pb-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-lg font-semibold">Todas as contas</h2>
-          <p className="mt-1 max-w-[62ch] text-sm text-[#66746e]">Contas manuais do mock atual.</p>
+
+          <p className="mt-1 max-w-[62ch] text-sm text-[#66746e]">
+            Contas manuais do mock atual.
+          </p>
         </div>
+
         <div className="grid grid-cols-[minmax(0,1fr)_44px] gap-2 sm:flex sm:items-center">
           <label className="flex min-h-11 items-center gap-2 rounded-lg border border-[#dde4df] bg-[#fbfbf8] px-3 text-sm text-[#66746e] sm:w-72">
             <Search size={17} aria-hidden="true" />
-            <span>Buscar conta</span>
+
+            <input
+              className="min-w-0 flex-1 bg-transparent text-[#17211d] outline-none placeholder:text-[#8a9691]"
+              type="search"
+              placeholder="Buscar conta"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
           </label>
-          <button className="grid size-11 place-items-center rounded-lg border border-[#dde4df] bg-[#fbfbf8]" type="button" aria-label="Filtros">
+
+          <button
+            className={
+              filtersOpen || statusFilter !== "all" || balanceFilter !== "all"
+                ? "grid size-11 place-items-center rounded-lg bg-[#0f6b57] text-white"
+                : "grid size-11 place-items-center rounded-lg border border-[#dde4df] bg-[#fbfbf8]"
+            }
+            type="button"
+            aria-label="Filtros"
+            aria-expanded={filtersOpen}
+            onClick={() => setFiltersOpen((current) => !current)}
+          >
             <SlidersHorizontal size={18} aria-hidden="true" />
           </button>
         </div>
       </div>
 
+      {filtersOpen && (
+        <section className="mt-4 rounded-lg border border-[#dde4df] bg-[#f7faf7] p-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-medium text-[#3f514a]">
+              Status
+
+              <select
+                className="min-h-11 rounded-lg border border-[#dde4df] bg-white px-3"
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(
+                    event.target.value as AccountStatus | "all"
+                  )
+                }
+              >
+                <option value="all">Todos</option>
+                <option value="active">Ativas</option>
+                <option value="reserved">Reserva</option>
+                <option value="shared">Compartilhadas</option>
+              </select>
+            </label>
+
+            <label className="grid gap-2 text-sm font-medium text-[#3f514a]">
+              Saldo
+
+              <select
+                className="min-h-11 rounded-lg border border-[#dde4df] bg-white px-3"
+                value={balanceFilter}
+                onChange={(event) =>
+                  setBalanceFilter(
+                    event.target.value as
+                      | "all"
+                      | "positive"
+                      | "zero"
+                      | "negative"
+                  )
+                }
+              >
+                <option value="all">Todos</option>
+                <option value="positive">Saldo positivo</option>
+                <option value="zero">Saldo zerado</option>
+                <option value="negative">Saldo negativo</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#dde4df] pt-4">
+            <span className="text-sm text-[#66746e]">
+              {filteredRows.length}{" "}
+              {filteredRows.length === 1
+                ? "conta encontrada"
+                : "contas encontradas"}
+            </span>
+
+            <button
+              className="min-h-10 rounded-lg border border-[#dde4df] bg-white px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              type="button"
+              disabled={!hasActiveFilters}
+              onClick={clearFilters}
+            >
+              Limpar filtros
+            </button>
+          </div>
+        </section>
+      )}
+
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-sm text-[#66746e]">
+          Exibindo {filteredRows.length} de {rows.length}
+        </span>
+      </div>
+
+      {filteredRows.length === 0 && (
+        <div className="mt-4 rounded-lg border border-dashed border-[#ccd6d0] bg-[#fbfbf8] px-4 py-10 text-center">
+          <strong className="block font-semibold">
+            Nenhuma conta encontrada
+          </strong>
+
+          <p className="mt-1 text-sm text-[#66746e]">
+            Tente alterar ou limpar os filtros.
+          </p>
+
+          {hasActiveFilters && (
+            <button
+              className="mt-4 rounded-lg bg-[#0f6b57] px-4 py-2 text-sm font-semibold text-white"
+              type="button"
+              onClick={clearFilters}
+            >
+              Limpar filtros
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="mt-4 grid gap-3 lg:hidden">
-        {rows.map((account) => (
-          <AccountCard key={account.id} account={account} />
+        {filteredRows.map((account) => (
+          <AccountCard
+            key={account.id}
+            account={account}
+            onDelete={() => deleteAccount(account.id)}
+          />
         ))}
       </div>
 
-      <div className="mt-4 hidden overflow-hidden rounded-lg border border-[#e7ece8] lg:block">
-        <div className="grid grid-cols-[minmax(220px,1.2fr)_minmax(110px,0.55fr)_minmax(150px,0.7fr)_minmax(150px,0.7fr)_minmax(120px,0.55fr)] bg-[#f0f7f2] px-4 py-3 text-sm font-semibold text-[#3f514a]">
-          <span>Banco</span>
-          <span>Status</span>
-          <span className="text-right">Saldo</span>
-          <span className="text-right">Saida prevista</span>
-          <span className="text-right">Atualizacao</span>
+      {filteredRows.length > 0 && (
+        <div className="mt-4 hidden overflow-hidden rounded-lg border border-[#e7ece8] lg:block">
+          <div className="grid grid-cols-[minmax(220px,1.2fr)_minmax(110px,0.55fr)_minmax(150px,0.7fr)_minmax(150px,0.7fr)_minmax(120px,0.55fr)_52px] bg-[#f0f7f2] px-4 py-3 text-sm font-semibold text-[#3f514a]">
+            <span>Banco</span>
+            <span>Status</span>
+            <span className="text-right">Saldo</span>
+            <span className="text-right">Saída prevista</span>
+            <span className="text-right">Atualização</span>
+            <span className="sr-only">Ações</span>
+          </div>
+
+          {filteredRows.map((account) => (
+            <article
+              className="grid grid-cols-[minmax(220px,1.2fr)_minmax(110px,0.55fr)_minmax(150px,0.7fr)_minmax(150px,0.7fr)_minmax(120px,0.55fr)_52px] items-center border-t border-[#e7ece8] bg-[#fbfbf8] px-4 py-4"
+              key={account.id}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div
+                  className="grid size-10 place-items-center rounded-lg text-sm font-bold text-white"
+                  style={{ background: account.color }}
+                  aria-hidden="true"
+                >
+                  {account.bank.slice(0, 1)}
+                </div>
+
+                <div className="min-w-0">
+                  <strong className="block truncate font-semibold">
+                    {account.bank}
+                  </strong>
+
+                  <span className="block truncate text-sm text-[#66746e]">
+                    Código {account.institutionCode}
+                  </span>
+                </div>
+              </div>
+
+              <span
+                className={`w-fit rounded-full px-2 py-1 text-xs font-semibold ${statusClass[account.status]}`}
+              >
+                {statusLabel[account.status]}
+              </span>
+
+              <strong className="text-right font-semibold">
+                {formatCurrency(account.balanceCents)}
+              </strong>
+
+              <span className="text-right text-sm text-[#66746e]">
+                {formatCurrency(account.plannedOutflowCents)}
+              </span>
+
+              <span className="text-right text-sm text-[#66746e]">
+                {formatShortDate(account.updatedAt)}
+              </span>
+
+              <button
+                className="grid size-10 place-items-center justify-self-end rounded-lg text-[#a43b32] transition hover:bg-[#a43b32]/10"
+                type="button"
+                aria-label={`Apagar conta ${account.bank}`}
+                title={`Apagar ${account.bank}`}
+                onClick={() => deleteAccount(account.id)}
+              >
+                <Trash2 size={18} aria-hidden="true" />
+              </button>
+            </article>
+          ))}
         </div>
-        {rows.map((account) => (
-          <article
-            className="grid grid-cols-[minmax(220px,1.2fr)_minmax(110px,0.55fr)_minmax(150px,0.7fr)_minmax(150px,0.7fr)_minmax(120px,0.55fr)] items-center border-t border-[#e7ece8] bg-[#fbfbf8] px-4 py-4"
-            key={account.id}
-          >
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="grid size-10 place-items-center rounded-lg text-sm font-bold text-white" style={{ background: account.color }} aria-hidden="true">
-                {account.bank.slice(0, 1)}
-              </div>
-              <div className="min-w-0">
-                <strong className="block truncate font-semibold">{account.bank}</strong>
-                <span className="block truncate text-sm text-[#66746e]">Codigo {account.institutionCode}</span>
-              </div>
-            </div>
-            <span className={`w-fit rounded-full px-2 py-1 text-xs font-semibold ${statusClass[account.status]}`}>
-              {statusLabel[account.status]}
-            </span>
-            <strong className="text-right font-semibold">{formatCurrency(account.balanceCents)}</strong>
-            <span className="text-right text-sm text-[#66746e]">{formatCurrency(account.plannedOutflowCents)}</span>
-            <span className="text-right text-sm text-[#66746e]">{formatShortDate(account.updatedAt)}</span>
-          </article>
-        ))}
-      </div>
+      )}
 
       <section className="mt-4 rounded-lg border border-[#e7ece8] bg-[#fbfbf8] p-4">
         <h3 className="text-base font-semibold">Nova conta</h3>
+
         <div className="mt-4 grid gap-3 md:grid-cols-2">
-          <label className="grid gap-2 text-sm font-medium text-[#3f514a]">Nome da conta<input className="min-h-11 rounded-lg border border-[#dde4df] bg-white px-3" value={name} onChange={(event) => setName(event.target.value)} /></label>
-          <label className="grid gap-2 text-sm font-medium text-[#3f514a]">Instituicao<input className="min-h-11 rounded-lg border border-[#dde4df] bg-white px-3" value={institution} onChange={(event) => setInstitution(event.target.value)} /></label>
-          <label className="grid gap-2 text-sm font-medium text-[#3f514a]">Saldo inicial<input className="min-h-11 rounded-lg border border-[#dde4df] bg-white px-3" inputMode="decimal" value={balance} onChange={(event) => setBalance(event.target.value)} /></label>
-          <button className="min-h-11 self-end rounded-lg bg-[#0f6b57] px-4 font-semibold text-white" onClick={addAccount} type="button">Criar conta simulada</button>
+          <label className="grid gap-2 text-sm font-medium text-[#3f514a]">
+            Nome da conta
+
+            <input
+              className="min-h-11 rounded-lg border border-[#dde4df] bg-white px-3"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </label>
+
+          <label className="grid gap-2 text-sm font-medium text-[#3f514a]">
+            Instituição
+
+            <input
+              className="min-h-11 rounded-lg border border-[#dde4df] bg-white px-3"
+              value={institution}
+              onChange={(event) => setInstitution(event.target.value)}
+            />
+          </label>
+
+          <label className="grid gap-2 text-sm font-medium text-[#3f514a]">
+            Saldo inicial
+
+            <input
+              className="min-h-11 rounded-lg border border-[#dde4df] bg-white px-3"
+              inputMode="decimal"
+              value={balance}
+              onChange={(event) => setBalance(event.target.value)}
+            />
+          </label>
+
+          <button
+            className="min-h-11 self-end rounded-lg bg-[#0f6b57] px-4 font-semibold text-white"
+            onClick={addAccount}
+            type="button"
+          >
+            Criar conta simulada
+          </button>
         </div>
       </section>
     </div>
   );
 }
 
-function AccountCard({ account }: { account: (typeof accountRows)[number] }) {
+function AccountCard({
+  account,
+  onDelete
+}: {
+  account: (typeof accountRows)[number];
+  onDelete: () => void;
+}) {
   return (
     <article className="rounded-lg border border-[#e7ece8] bg-[#fbfbf8] p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="grid size-11 place-items-center rounded-lg text-sm font-bold text-white" style={{ background: account.color }} aria-hidden="true">
+          <div
+            className="grid size-11 place-items-center rounded-lg text-sm font-bold text-white"
+            style={{ background: account.color }}
+            aria-hidden="true"
+          >
             {account.bank.slice(0, 1)}
           </div>
+
           <div className="min-w-0">
-            <strong className="block truncate font-semibold">{account.bank}</strong>
-            <span className="block truncate text-sm text-[#66746e]">{account.type}</span>
+            <strong className="block truncate font-semibold">
+              {account.bank}
+            </strong>
+
+            <span className="block truncate text-sm text-[#66746e]">
+              {account.type}
+            </span>
           </div>
         </div>
-        <strong className="text-right font-semibold">{formatCurrency(account.balanceCents)}</strong>
+
+        <strong className="text-right font-semibold">
+          {formatCurrency(account.balanceCents)}
+        </strong>
       </div>
-      <div className="mt-4 flex items-center justify-between border-t border-[#e7ece8] pt-3 text-sm text-[#66746e]">
-        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${statusClass[account.status]}`}>
-          {statusLabel[account.status]}
-        </span>
-        <span>{formatShortDate(account.updatedAt)}</span>
+
+      <div className="mt-4 flex items-center justify-between border-t border-[#e7ece8] pt-3">
+        <div className="flex items-center gap-2">
+          <span
+            className={`rounded-full px-2 py-1 text-xs font-semibold ${statusClass[account.status]}`}
+          >
+            {statusLabel[account.status]}
+          </span>
+
+          <span className="text-sm text-[#66746e]">
+            {formatShortDate(account.updatedAt)}
+          </span>
+        </div>
+
+        <button
+          className="grid size-10 place-items-center rounded-lg text-[#a43b32] transition hover:bg-[#a43b32]/10"
+          type="button"
+          aria-label={`Apagar conta ${account.bank}`}
+          title={`Apagar ${account.bank}`}
+          onClick={onDelete}
+        >
+          <Trash2 size={18} aria-hidden="true" />
+        </button>
       </div>
     </article>
   );
