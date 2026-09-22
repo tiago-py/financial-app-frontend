@@ -14,14 +14,14 @@ const enabledRoutes = [
 
 export function DesktopAppNav({ active }: { active: ActiveRoute }) {
   return (
-    <nav className="hidden flex-1 items-center justify-center gap-1 md:flex" aria-label="Navegacao principal">
+    <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-1" aria-label="Navegacao principal">
       {enabledRoutes.map((item) => (
         <a
           aria-current={active === item.id ? "page" : undefined}
           className={
             active === item.id
-              ? "rounded-lg bg-[#0f6b57]/10 px-4 py-2 text-sm font-semibold text-[#0f3d35]"
-              : "rounded-lg px-4 py-2 text-sm font-semibold text-[#66746e] hover:bg-white/70 hover:text-[#17211d]"
+              ? "rounded-lg bg-[#0f6b57]/10 px-2.5 py-2 text-sm font-semibold text-[#0f3d35] xl:px-4"
+              : "rounded-lg px-2.5 py-2 text-sm font-semibold text-[#66746e] hover:bg-white/70 hover:text-[#17211d] xl:px-4"
           }
           href={item.href}
           key={item.id}
@@ -36,10 +36,10 @@ export function DesktopAppNav({ active }: { active: ActiveRoute }) {
 export function MobileAppNav({ active }: { active: ActiveRoute }) {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-[#dde4df]/90 bg-[#f6f4ef]/88 px-3 py-2 pb-[calc(10px+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-[#dde4df]/90 bg-[#f6f4ef]/88 px-2 py-2 pb-[calc(10px+env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden sm:px-3"
       aria-label="Navegacao principal"
     >
-      <div className="grid w-full max-w-[680px] grid-cols-7 gap-1">
+      <div className="grid w-full max-w-[680px] grid-cols-7 gap-0.5 sm:gap-1">
         {enabledRoutes.map((item) => {
           const Icon = item.icon;
 

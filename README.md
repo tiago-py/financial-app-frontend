@@ -1,6 +1,6 @@
 # Financial App Frontend
 
-Mock mobile-first do aplicativo de financas pessoais.
+Frontend mobile-first do aplicativo de financas pessoais.
 
 ## Stack
 
@@ -18,13 +18,15 @@ npm install
 npm run dev
 npm run build
 npm run typecheck
-npm run check:mock
 ```
 
 ## Escopo atual
 
-Esta etapa implementa um mock local da Home e das principais abas do frontend: Contas, Extrato, Adicionar, Dividas, Relatorios e Ajustes. Os dados sao ficticios e ficam principalmente em `src/features/home/mock.ts` e `src/features/accounts/mock.ts`.
-Nao ha autenticacao, API real, persistencia, cadastro de bancos ou backend integrado.
-As interacoes atuais sao simulacoes locais em estado de React; recarregar a pagina restaura os mocks.
+Home, Contas, Extrato, Adicionar, Dividas, Relatorios e Ajustes consomem a API
+Go por meio do proxy `/api/backend` configurado no Next.js. A autenticacao usa
+cookie HttpOnly emitido pelo backend; o frontend nao armazena o JWT.
+
+Configure `BACKEND_URL` quando a API nao estiver em
+`http://localhost:8080`. Consulte `.env.example`.
 
 O service worker nao armazena dados financeiros: ele cobre apenas shell publico, icones e a pagina offline.

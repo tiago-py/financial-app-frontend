@@ -4,7 +4,7 @@ import { ServiceWorkerRegister } from "@/shared/pwa/service-worker-register";
 
 export const metadata: Metadata = {
   title: "Financas",
-  description: "Mock mobile-first de financas pessoais em BRL",
+  description: "Aplicativo mobile-first de financas pessoais em BRL",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

@@ -1,0 +1,55 @@
+
+> financial-app-frontend@0.1.0 dev
+> next dev -p 3000
+
+   ▲ Next.js 15.5.25
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.127:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.6s
+ ○ Compiling /login ...
+ ✓ Compiled /login in 3s (571 modules)
+ GET /login 200 in 3495ms
+ GET /login 200 in 3530ms
+ ✓ Compiled / in 469ms (613 modules)
+ GET / 200 in 696ms
+ GET /login 200 in 255ms
+ ✓ Compiled /accounts in 466ms (635 modules)
+ GET /manifest.webmanifest 200 in 587ms
+ GET /accounts 200 in 777ms
+ ✓ Compiled /transactions in 275ms (651 modules)
+ GET /transactions 200 in 461ms
+ ✓ Compiled /add in 272ms (667 modules)
+ GET /add 200 in 389ms
+ ✓ Compiled /debts in 314ms (679 modules)
+ GET /debts 200 in 436ms
+ ✓ Compiled /reports in 294ms (695 modules)
+ GET /reports 200 in 417ms
+ ✓ Compiled /settings in 372ms (713 modules)
+ GET /settings 200 in 488ms
+ ✓ Compiled in 579ms (727 modules)
+ GET /login 200 in 97ms
+ GET /manifest.webmanifest 200 in 30ms
+ GET /login 200 in 128ms
+ GET / 200 in 32ms
+ GET / 200 in 30ms
+ GET /manifest.webmanifest 200 in 14ms
+ ✓ Compiled in 556ms (648 modules)
+ GET / 200 in 176ms
+ ✓ Compiled /manifest.webmanifest in 192ms (372 modules)
+ GET /manifest.webmanifest 200 in 293ms
+ ✓ Compiled in 192ms (297 modules)
+ GET / 200 in 75ms
+ GET /manifest.webmanifest 200 in 9ms
+ ✓ Compiled in 216ms (298 modules)
+ GET / 200 in 119ms
+ ✓ Compiled in 383ms (656 modules)
+ GET / 200 in 381ms
+ GET / 200 in 29ms
+ GET /manifest.webmanifest 200 in 25ms
+ ✓ Compiled in 360ms (649 modules)
+ GET / 200 in 139ms
+ ✓ Compiled /manifest.webmanifest in 90ms (372 modules)
+ GET /manifest.webmanifest 200 in 172ms
+[?25h

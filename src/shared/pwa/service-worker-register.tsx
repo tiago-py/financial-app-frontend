@@ -9,7 +9,7 @@ export function ServiceWorkerRegister() {
     }
 
     navigator.serviceWorker.register("/sw.js").catch(() => {
-      // A falha no registro nao deve bloquear o uso do mock.
+      // A falha no registro nao deve bloquear o uso do aplicativo.
     });
   }, []);
 
