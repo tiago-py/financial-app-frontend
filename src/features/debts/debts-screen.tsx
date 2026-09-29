@@ -20,6 +20,7 @@ export function DebtsScreen() {
   const [creditor, setCreditor] = useState("");
   const [principal, setPrincipal] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [installmentCount, setInstallmentCount] = useState("1");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
@@ -49,14 +50,15 @@ export function DebtsScreen() {
 
   async function createDebt() {
     const principalCents = centsFromInput(principal);
-    if (!description.trim() || principalCents <= 0) return;
+    const installments = Number(installmentCount);
+    if (!description.trim() || principalCents <= 0 || !Number.isInteger(installments) || installments < 1 || installments > 360 || (installments > 1 && !dueDate)) return;
     setPending(true);
     try {
       await apiRequest("/debts", {
         method: "POST",
-        body: JSON.stringify({ description, creditor, principalCents, dueDate: dueDate || null })
+        body: JSON.stringify({ description, creditor, principalCents, dueDate: dueDate || null, installmentCount: installments })
       });
-      setDescription(""); setCreditor(""); setPrincipal(""); setDueDate("");
+      setDescription(""); setCreditor(""); setPrincipal(""); setDueDate(""); setInstallmentCount("1");
       await load();
     } catch (requestError) {
       setError(messageFromError(requestError));
@@ -116,13 +118,13 @@ export function DebtsScreen() {
               <div className="mt-4 grid gap-3">
                 {debts.map((debt) => {
                   const progress = debt.principalCents ? (debt.paidCents / debt.principalCents) * 100 : 0;
-                  return <article className="min-w-0 rounded-lg border border-[#e7ece8] bg-[#fbfbf8] p-4" key={debt.id}><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div className="min-w-0"><strong className="block break-words">{debt.description}</strong><span className="block break-words text-sm text-[#66746e]">{debt.creditor ?? "Sem credor"}{debt.dueDate ? " · vence " + formatShortDate(debt.dueDate) : ""}</span></div><div className="flex items-center justify-between gap-2 sm:justify-end"><strong className="whitespace-nowrap">{formatCurrency(debt.pendingCents)}</strong>{debt.paidCents === 0 && <button className="grid size-9 shrink-0 place-items-center rounded-lg text-[#a43b32] hover:bg-[#a43b32]/10" onClick={() => void removeDebt(debt.id)} title="Excluir divida" type="button"><Trash2 size={17} /></button>}</div></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e5ece7]"><i className="block h-full rounded-full bg-[#0f6b57]" style={{ width: Math.min(100, progress) + "%" }} /></div><div className="mt-2 flex flex-wrap justify-between gap-2 text-sm text-[#66746e]"><span>Pago {formatCurrency(debt.paidCents)}</span><span>{debt.status}</span></div></article>;
+                  return <article className="min-w-0 rounded-lg border border-[#e7ece8] bg-[#fbfbf8] p-4" key={debt.id}><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div className="min-w-0"><strong className="block break-words">{debt.description}</strong><span className="block break-words text-sm text-[#66746e]">{debt.creditor ?? "Sem credor"}{debt.dueDate ? " · vence " + formatShortDate(debt.dueDate) : ""}{debt.installmentCount > 1 ? ` · ${debt.installmentCount} parcelas` : ""}</span></div><div className="flex items-center justify-between gap-2 sm:justify-end"><strong className="whitespace-nowrap">{formatCurrency(debt.pendingCents)}</strong>{debt.paidCents === 0 && <button className="grid size-9 shrink-0 place-items-center rounded-lg text-[#a43b32] hover:bg-[#a43b32]/10" onClick={() => void removeDebt(debt.id)} title="Excluir divida" type="button"><Trash2 size={17} /></button>}</div></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e5ece7]"><i className="block h-full rounded-full bg-[#0f6b57]" style={{ width: Math.min(100, progress) + "%" }} /></div><div className="mt-2 flex flex-wrap justify-between gap-2 text-sm text-[#66746e]"><span>Pago {formatCurrency(debt.paidCents)}</span><span>{debt.status}</span></div></article>;
                 })}
               </div>
             </section>
             <section className="rounded-lg border border-[#dde4df] bg-white/82 p-4 shadow-sm sm:p-5">
               <div className="flex items-center gap-2"><Plus size={20} className="text-[#0f6b57]" /><h2 className="font-semibold">Nova divida</h2></div>
-              <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-2"><TextField label="Descricao" value={description} onChange={setDescription} /><TextField label="Credor" value={creditor} onChange={setCreditor} /><Field label="Valor principal" value={principal} onChange={setPrincipal} /><label className="grid min-w-0 gap-2 text-sm font-medium">Vencimento<input className="min-h-11 w-full min-w-0 rounded-lg border border-[#dde4df] bg-white px-3" type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} /></label><button className="min-h-11 rounded-lg bg-[#0f6b57] px-4 font-semibold text-white disabled:opacity-60 md:col-span-2" disabled={pending} onClick={() => void createDebt()} type="button">Cadastrar divida</button></div>
+              <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-2"><TextField label="Descricao" value={description} onChange={setDescription} /><TextField label="Credor" value={creditor} onChange={setCreditor} /><Field label="Valor principal" value={principal} onChange={setPrincipal} /><label className="grid min-w-0 gap-2 text-sm font-medium">Numero de parcelas<input className="min-h-11 w-full min-w-0 rounded-lg border border-[#dde4df] bg-white px-3" min="1" max="360" type="number" value={installmentCount} onChange={(event) => setInstallmentCount(event.target.value)} /></label><label className="grid min-w-0 gap-2 text-sm font-medium">{Number(installmentCount) > 1 ? "Vencimento da primeira parcela" : "Vencimento"}<input className="min-h-11 w-full min-w-0 rounded-lg border border-[#dde4df] bg-white px-3" type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} /></label><button className="min-h-11 rounded-lg bg-[#0f6b57] px-4 font-semibold text-white disabled:opacity-60 md:col-span-2" disabled={pending} onClick={() => void createDebt()} type="button">Cadastrar divida</button></div>
             </section>
           </div>
         </div>

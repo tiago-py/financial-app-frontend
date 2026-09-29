@@ -82,6 +82,15 @@ export type Debt = {
   currency: string;
   dueDate: string | null;
   status: "active" | "paid" | "cancelled" | "archived";
+  installmentCount: number;
+};
+
+export type DebtInstallment = {
+  id: string;
+  debtId: string;
+  number: number;
+  amountCents: number;
+  dueDate: string;
 };
 
 export type SpendingReport = {

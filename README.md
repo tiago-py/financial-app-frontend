@@ -21,8 +21,9 @@ npm run typecheck
 
 ## Escopo atual
 
-Esta etapa implementa um mock local da Home e das principais abas do frontend: Contas, Extrato, Adicionar, Dividas, Relatorios e Ajustes. Os dados sao ficticios e ficam principalmente em `src/features/home/mock.ts` e `src/features/accounts/mock.ts`.
-Nao ha autenticacao, API real, persistencia, cadastro de bancos ou backend integrado.
-As interacoes atuais sao simulacoes locais em estado de React; recarregar a pagina restaura os mocks.
+As rotas da Home, Contas, Extrato, Adicionar, Dividas, Relatorios, Ajustes e
+Administracao consomem a API Go pelo proxy `/api/backend`. Autenticacao usa o
+cookie HttpOnly `financial_session`; operacoes financeiras aguardam a resposta
+do backend. O cadastro de dividas aceita um cronograma mensal parcelado.
 
 O service worker nao armazena dados financeiros: ele cobre apenas shell publico, icones e a pagina offline.
