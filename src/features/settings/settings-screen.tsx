@@ -87,40 +87,50 @@ export function SettingsScreen() {
       {user && (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
           <div className="grid gap-4">
-            <section className="rounded-lg border border-[#dde4df] bg-white/82 p-4 shadow-sm sm:p-5">
+          <section className="min-w-0 rounded-xl border border-[#dde4df] bg-white/90 p-4 shadow-sm sm:p-6">
+            <div>
               <h2 className="text-lg font-semibold">Perfil</h2>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <label className="grid min-w-0 gap-2 text-sm font-medium">
-                  Nome
 
-                  <input
-                    className="min-h-11 w-full min-w-0 rounded-lg border border-[#dde4df] bg-white px-3"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                  />
-                </label>
+              <p className="mt-1 text-sm text-[#66746e]">
+                Atualize suas informações pessoais.
+              </p>
+            </div>
 
-                <label className="grid min-w-0 gap-2 text-sm font-medium">
-                  E-mail
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <label className="grid min-w-0 gap-2 text-sm font-medium">
+                Nome
 
-                  <input
-                    className="min-h-11 w-full min-w-0 rounded-lg border border-[#dde4df] bg-[#f3f5f3] px-3 text-[#66746e]"
-                    value={user.email}
-                    disabled
-                  />
-                </label>
-              </div>
+                <input
+                  className="min-h-11 w-full min-w-0 rounded-lg border border-[#dde4df] bg-white px-3"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </label>
 
-              <ChangePasswordForm />
-                <button
-                  className="min-h-11 rounded-lg bg-[#0f6b57] px-4 font-semibold text-white disabled:opacity-60 md:col-span-2"
-                  disabled={pending}
-                  onClick={() => void saveProfile()}
-                  type="button"
-                >
-                  Salvar perfil
-                </button>
-            </section>
+              <label className="grid min-w-0 gap-2 text-sm font-medium">
+                E-mail
+
+                <input
+                  className="min-h-11 w-full min-w-0 rounded-lg border border-[#dde4df] bg-[#f3f5f3] px-3 text-[#66746e]"
+                  value={user.email}
+                  disabled
+                />
+              </label>
+            </div>
+
+            <div className="mt-5 flex justify-end">
+              <button
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[#0f6b57] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#0c5747] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                disabled={pending}
+                onClick={() => void saveProfile()}
+                type="button"
+              >
+                {pending ? "Salvando..." : "Salvar perfil"}
+              </button>
+            </div>
+
+            <ChangePasswordForm />
+          </section>
             <section className="rounded-lg border border-[#dde4df] bg-white/82 p-4 shadow-sm sm:p-5">
               <div className="flex items-center gap-2"><Plus size={20} className="text-[#0f6b57]" /><h2 className="text-lg font-semibold">Categorias</h2></div>
               <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px_auto]">
