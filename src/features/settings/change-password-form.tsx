@@ -205,102 +205,18 @@ function PasswordField({
   onChange
 }: PasswordFieldProps) {
   return (
-  <section
-    aria-labelledby="change-password-title"
-    className="mt-7 border-t border-[#dde4df] pt-6"
-  >
-    <div className="flex items-start gap-3">
-      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[#0f6b57]/10 text-[#0f6b57]">
-        <LockKeyhole size={20} aria-hidden="true" />
+    <label className="grid gap-1.5">
+      <span className="text-sm font-medium text-[#25332d]">
+        {label}
       </span>
 
-      <div className="min-w-0">
-        <h3
-          id="change-password-title"
-          className="text-base font-semibold"
-        >
-          Alterar senha
-        </h3>
-
-        <p
-          id="password-help"
-          className="mt-1 max-w-xl text-sm leading-6 text-[#66746e]"
-        >
-          Use pelo menos 8 caracteres. Após a alteração, entre
-          novamente em todos os dispositivos.
-        </p>
-      </div>
-    </div>
-
-    {changed ? (
-      <div className="mt-5 rounded-lg border border-[#b8d8c8] bg-[#f0f7f2] p-4">
-        <p
-          role="status"
-          className="text-sm leading-6 text-[#0f6b57]"
-        >
-          Senha alterada com sucesso. Suas sessões foram encerradas.
-          Entre novamente com a nova senha.
-        </p>
-
-        <div className="mt-4 flex justify-end">
-          <a
-            href="/login"
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[#0f6b57] px-6 text-sm font-semibold text-white hover:bg-[#0c5747] sm:w-auto"
-          >
-            Ir para o login
-          </a>
-        </div>
-      </div>
-    ) : (
-      <form onSubmit={handleSubmit} className="mt-5">
-        {error && (
-          <p
-            role="alert"
-            className="mb-4 rounded-lg border border-[#e8cbc7] bg-[#fff5f3] p-3 text-sm text-[#a43b32]"
-          >
-            {error}
-          </p>
-        )}
-
-        <fieldset
-          disabled={pending}
-          className="m-0 grid min-w-0 gap-4 border-0 p-0 md:grid-cols-2"
-        >
-          <div className="min-w-0 md:col-span-2">
-            <PasswordField
-              label="Senha atual"
-              autoComplete="current-password"
-              value={currentPassword}
-              onChange={setCurrentPassword}
-            />
-          </div>
-
-          <PasswordField
-            label="Nova senha"
-            autoComplete="new-password"
-            value={newPassword}
-            onChange={setNewPassword}
-          />
-
-          <PasswordField
-            label="Confirmar nova senha"
-            autoComplete="new-password"
-            value={confirmation}
-            onChange={setConfirmation}
-          />
-
-          <div className="flex justify-end pt-1 md:col-span-2">
-            <button
-              type="submit"
-              disabled={pending}
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[#0f6b57] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#0c5747] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-            >
-              {pending ? "Alterando senha..." : "Salvar nova senha"}
-            </button>
-          </div>
-        </fieldset>
-      </form>
-    )}
-  </section>
-);
+      <input
+        type="password"
+        autoComplete={autoComplete}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="min-h-11 w-full rounded-lg border border-[#ccd6d1] bg-white px-3 text-[#18241f] outline-none transition focus:border-[#0f6b57] focus:ring-2 focus:ring-[#0f6b57]/20"
+      />
+    </label>
+  );
 }
