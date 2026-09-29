@@ -109,7 +109,9 @@ export function SettingsScreen() {
                     disabled
                   />
                 </label>
+              </div>
 
+              <ChangePasswordForm />
                 <button
                   className="min-h-11 rounded-lg bg-[#0f6b57] px-4 font-semibold text-white disabled:opacity-60 md:col-span-2"
                   disabled={pending}
@@ -118,9 +120,6 @@ export function SettingsScreen() {
                 >
                   Salvar perfil
                 </button>
-              </div>
-
-              <ChangePasswordForm />
             </section>
             <section className="rounded-lg border border-[#dde4df] bg-white/82 p-4 shadow-sm sm:p-5">
               <div className="flex items-center gap-2"><Plus size={20} className="text-[#0f6b57]" /><h2 className="text-lg font-semibold">Categorias</h2></div>
