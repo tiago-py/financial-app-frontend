@@ -9,6 +9,8 @@ import { formatCurrency, formatShortDate } from "@/shared/lib/format";
 import { MobileAppNav } from "@/shared/ui/app-navigation";
 import { ErrorPanel, LoadingPanel, PageHeader } from "@/shared/ui/page-header";
 
+import { CreateAccountForm } from "./create-account-form";
+
 export function AccountsScreen() {
   const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -108,6 +110,7 @@ export function AccountsScreen() {
 
           {tab === "accounts" ? (
             <div>
+              <CreateAccountForm onCreated={load} />
               <section className="rounded-lg border border-[#dde4df] bg-white/82 p-4 shadow-sm">
                 <h2 className="text-lg font-semibold">Contas cadastradas</h2>
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
